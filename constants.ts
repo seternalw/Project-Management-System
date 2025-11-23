@@ -15,21 +15,43 @@ export const MOCK_USERS: User[] = [
     email: 'admin@gridflow.com',
     name: '系统管理员',
     role: 'ADMIN',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+    title: 'IT Director',
+    joinDate: '2020-01-01'
   },
   {
     id: 'u2',
     email: 'manager@gridflow.com',
     name: '部门经理',
     role: 'MANAGER',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=manager'
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=manager',
+    title: 'Senior Manager',
+    joinDate: '2021-03-15'
   },
   {
     id: 'u3',
     email: 'arch@gridflow.com',
     name: '李工 (架构师)',
     role: 'ARCHITECT',
-    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=arch'
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=arch',
+    title: 'Senior Architect',
+    joinDate: '2022-06-01',
+    persona: {
+        historySummary: '主要负责 VPP 虚拟电厂和营销系统的技术架构设计。',
+        domains: ['IoT', 'High Concurrency', 'Java'],
+        workStyle: '注重文档规范，交付物质量高，但沟通响应较慢。',
+        improvementAreas: '建议加强对于云原生安全架构的理解。'
+    },
+    lastPersonaUpdate: '2024-05-01'
+  },
+  {
+    id: 'u4',
+    email: 'dev@gridflow.com',
+    name: '王工 (开发组长)',
+    role: 'ARCHITECT',
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=dev',
+    title: 'Lead Developer',
+    joinDate: '2023-02-10'
   }
 ];
 
@@ -74,12 +96,67 @@ If no, return "NO".`
     id: 'pt_workflow',
     key: 'WORKFLOW_CONTEXT',
     name: '部门工作职责与流程画像',
-    description: '系统通过扫描所有项目历史自动生成的部门工作习惯描述。此内容将被注入到"AI Recall"中以提高建议的准确性。',
+    description: '系统通过扫描所有项目历史自动生成的部门工作习惯描述。',
     lastUpdated: new Date().toISOString().split('T')[0],
     isSystemGenerated: true,
     template: `目前暂无生成的部门画像。请点击“全量扫描生成”按钮，让AI分析您的历史数据。
 
 (默认占位符: 本部门主要负责电力行业解决方案设计。通常工作流程为：需求调研 -> 方案蓝图设计 -> 内部评审 -> 招投标 -> 交付实施。)`
+  },
+  {
+    id: 'pt_persona',
+    key: 'USER_PERSONA',
+    name: '用户能力画像生成',
+    description: '分析用户的历史日志、负责项目类型，生成能力维度画像。',
+    lastUpdated: new Date().toISOString().split('T')[0],
+    template: `You are an HR & Technical Director assistant. Analyze the work logs and project history of user "{{userName}}".
+    
+Department Responsibilities: {{departmentContext}}
+
+Raw Work Logs:
+{{userLogs}}
+
+Generate a JSON profile with 4 fields:
+1. "historySummary": Brief summary of what they have worked on.
+2. "domains": List of technical or business domains they seem strong in.
+3. "workStyle": Inferred working style (e.g., detail-oriented, meeting-heavy, code-focused).
+4. "improvementAreas": Compare their work against Department Responsibilities. What seems missing or weak?
+
+Return ONLY valid JSON.`
+  },
+  {
+    id: 'pt_recommend',
+    key: 'ARCHITECT_RECOMMENDATION',
+    name: '架构师智能推荐',
+    description: '根据项目需求和人员情况进行加权打分推荐。',
+    lastUpdated: new Date().toISOString().split('T')[0],
+    template: `You are a Resource Manager. 
+We need to assign a Technical Architect to a new project:
+Project Name: {{projectName}}
+Description: {{projectDesc}}
+
+Candidate List (with pre-calculated workload scores out of 3):
+{{candidates}}
+
+Your Task:
+Evaluate each candidate and provide a JSON response with a "recommendations" array.
+For each candidate, calculate the remaining score (out of 7) based on:
+1. History Match (max 3): Have they done similar projects?
+2. Persona Match (max 2): Do their skills/style fit?
+3. Other Factors (max 2): Seniority, potential growth, etc.
+
+Combine with the provided "Workload Score" (max 3) for a Total Score (max 10).
+
+Return JSON format:
+{
+  "recommendations": [
+    { 
+      "userId": "...", 
+      "totalScore": number, 
+      "reason": "Brief explanation..." 
+    }
+  ]
+}`
   }
 ];
 

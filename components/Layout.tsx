@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutGrid, PlusCircle, FolderKanban, Zap, Menu, ClipboardList, Bot, LogOut } from 'lucide-react';
+import { LayoutGrid, PlusCircle, FolderKanban, Zap, Menu, ClipboardList, Bot, LogOut, Users } from 'lucide-react';
 import { ViewMode, User } from '../types';
 
 interface LayoutProps {
@@ -56,7 +56,18 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user, o
             <span className="font-medium">周报统计</span>
           </div>
           
-          {/* RBAC: Only ADMIN can see Prompt Manager */}
+          {/* User Management - Admin/Manager Only */}
+          {(user.role === 'ADMIN' || user.role === 'MANAGER') && (
+            <div 
+                onClick={() => setView('USER_MANAGEMENT')}
+                className={navClass('USER_MANAGEMENT')}
+            >
+                <Users size={20} />
+                <span className="font-medium">人员资源管理</span>
+            </div>
+          )}
+          
+          {/* Prompt Manager - Admin Only */}
           {user.role === 'ADMIN' && (
             <div 
                 onClick={() => setView('PROMPT_MANAGER')}
@@ -68,7 +79,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user, o
           )}
 
           <div 
-            onClick={() => setView('PROJECT_DETAIL')} // Usually navigated via list, but kept for logic
+            onClick={() => setView('PROJECT_DETAIL')} 
             className={`${navClass('PROJECT_DETAIL')} ${currentView !== 'PROJECT_DETAIL' ? 'hidden' : ''}`}
           >
             <FolderKanban size={20} />
@@ -110,6 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user, o
                 {currentView === 'DASHBOARD' ? '概览' : 
                  currentView === 'DISPATCH' ? '项目接入与分配' : 
                  currentView === 'WEEKLY_REPORT' ? '周报统计' : 
+                 currentView === 'USER_MANAGEMENT' ? '人员能力画像与资源' :
                  currentView === 'PROMPT_MANAGER' ? 'AI Prompt 模板管理' : '项目详情'}
              </span>
           </div>

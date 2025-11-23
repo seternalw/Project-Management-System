@@ -7,8 +7,9 @@ import ProjectDetail from './pages/ProjectDetail';
 import WeeklyReport from './pages/WeeklyReport';
 import PromptManager from './pages/PromptManager';
 import LoginPage from './pages/LoginPage';
+import UserManagement from './pages/UserManagement';
 import { Project, ViewMode, PromptTemplate, User } from './types';
-import { MOCK_PROJECTS, DEFAULT_PROMPT_TEMPLATES } from './constants';
+import { MOCK_PROJECTS, DEFAULT_PROMPT_TEMPLATES, MOCK_USERS } from './constants';
 
 const App: React.FC = () => {
   // Auth State
@@ -18,6 +19,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [promptTemplates, setPromptTemplates] = useState<PromptTemplate[]>(DEFAULT_PROMPT_TEMPLATES);
+  const [users, setUsers] = useState<User[]>(MOCK_USERS);
 
   // If not logged in, show Login Page
   if (!user) {
@@ -40,6 +42,10 @@ const App: React.FC = () => {
 
   const handleUpdateTemplate = (updatedTemplate: PromptTemplate) => {
     setPromptTemplates(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
   };
 
   const handleLogout = () => {
@@ -66,6 +72,15 @@ const App: React.FC = () => {
         <WeeklyReport projects={projects} />
       )}
 
+      {currentView === 'USER_MANAGEMENT' && (
+        <UserManagement 
+            users={users}
+            projects={projects}
+            templates={promptTemplates}
+            onUpdateUser={handleUpdateUser}
+        />
+      )}
+
       {currentView === 'PROMPT_MANAGER' && (
         <PromptManager 
             templates={promptTemplates}
@@ -81,6 +96,8 @@ const App: React.FC = () => {
           onBack={() => setView('DISPATCH')}
           onUpdateProject={handleUpdateProject}
           promptTemplates={promptTemplates}
+          users={users} // Pass users for architect selection
+          projects={projects} // Pass all projects context for AI recommendation logic
         />
       )}
 
