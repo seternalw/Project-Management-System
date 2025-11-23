@@ -61,3 +61,13 @@ export interface PromptTemplate {
 }
 
 export type ViewMode = 'DASHBOARD' | 'DISPATCH' | 'PROJECT_DETAIL' | 'WEEKLY_REPORT' | 'PROMPT_MANAGER';
+
+export type UserRole = 'ADMIN' | 'MANAGER' | 'ARCHITECT';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  avatarUrl?: string;
+}

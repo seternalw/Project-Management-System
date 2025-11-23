@@ -1,15 +1,17 @@
 
 import React from 'react';
-import { LayoutGrid, PlusCircle, FolderKanban, Zap, Menu, ClipboardList, Bot } from 'lucide-react';
-import { ViewMode } from '../types';
+import { LayoutGrid, PlusCircle, FolderKanban, Zap, Menu, ClipboardList, Bot, LogOut } from 'lucide-react';
+import { ViewMode, User } from '../types';
 
 interface LayoutProps {
   children: React.ReactNode;
   currentView: ViewMode;
   setView: (view: ViewMode) => void;
+  user: User;
+  onLogout: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user, onLogout }) => {
   const navClass = (view: ViewMode) => 
     `flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all ${
       currentView === view 
@@ -20,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-2xl">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-2xl transition-all duration-300">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="p-2 bg-blue-600 rounded-lg">
             <Zap className="w-6 h-6 text-white" fill="currentColor" />
@@ -53,13 +55,18 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
             <ClipboardList size={20} />
             <span className="font-medium">周报统计</span>
           </div>
-          <div 
-            onClick={() => setView('PROMPT_MANAGER')}
-            className={navClass('PROMPT_MANAGER')}
-          >
-            <Bot size={20} />
-            <span className="font-medium">Prompt 调优</span>
-          </div>
+          
+          {/* RBAC: Only ADMIN can see Prompt Manager */}
+          {user.role === 'ADMIN' && (
+            <div 
+                onClick={() => setView('PROMPT_MANAGER')}
+                className={navClass('PROMPT_MANAGER')}
+            >
+                <Bot size={20} />
+                <span className="font-medium">Prompt 调优</span>
+            </div>
+          )}
+
           <div 
             onClick={() => setView('PROJECT_DETAIL')} // Usually navigated via list, but kept for logic
             className={`${navClass('PROJECT_DETAIL')} ${currentView !== 'PROJECT_DETAIL' ? 'hidden' : ''}`}
@@ -70,10 +77,26 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
         </nav>
 
         <div className="p-4 border-t border-slate-800">
-          <div className="bg-slate-800 rounded-lg p-4">
-            <p className="text-xs text-slate-400 mb-1">当前角色</p>
-            <p className="text-sm font-semibold">部门经理</p>
-            <p className="text-xs text-slate-500 mt-2">解决方案架构部</p>
+          <div className="bg-slate-800 rounded-lg p-4 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 overflow-hidden border-2 border-slate-600">
+                    {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs font-bold">{user.name.charAt(0)}</div>
+                    )}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate">{user.name}</p>
+                    <p className="text-xs text-slate-400 mt-0.5 capitalize">{user.role}</p>
+                </div>
+            </div>
+            <button 
+                onClick={onLogout}
+                className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors w-full justify-center pt-2 border-t border-slate-700"
+            >
+                <LogOut size={14} /> 退出登录
+            </button>
           </div>
         </div>
       </aside>
@@ -94,8 +117,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
              <button className="p-2 hover:bg-slate-100 rounded-full text-slate-500">
                 <Menu size={20} />
              </button>
-             <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-xs border border-blue-200">
-                DM
+             <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium border border-blue-200">
+                {user.role} VIEW
              </div>
           </div>
         </header>

@@ -1,5 +1,5 @@
 
-import { Project, ProjectStatus, ProjectStage, LogEntry, PromptTemplate } from './types';
+import { Project, ProjectStatus, ProjectStage, LogEntry, PromptTemplate, User } from './types';
 
 export const BUSINESS_UNITS = [
   "Marketing & Service",
@@ -7,6 +7,30 @@ export const BUSINESS_UNITS = [
   "Virtual Power Plant (VPP)",
   "Grid Dispatch",
   "Cyber Security"
+];
+
+export const MOCK_USERS: User[] = [
+  {
+    id: 'u1',
+    email: 'admin@gridflow.com',
+    name: '系统管理员',
+    role: 'ADMIN',
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin'
+  },
+  {
+    id: 'u2',
+    email: 'manager@gridflow.com',
+    name: '部门经理',
+    role: 'MANAGER',
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=manager'
+  },
+  {
+    id: 'u3',
+    email: 'arch@gridflow.com',
+    name: '李工 (架构师)',
+    role: 'ARCHITECT',
+    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=arch'
+  }
 ];
 
 export const DEFAULT_PROMPT_TEMPLATES: PromptTemplate[] = [

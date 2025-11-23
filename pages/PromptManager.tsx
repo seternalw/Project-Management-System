@@ -1,19 +1,32 @@
 
 import React, { useState, useEffect } from 'react';
-import { Save, RefreshCw, Cpu, Terminal, Info, Sparkles, Edit3, Lock, Unlock, AlertCircle } from 'lucide-react';
-import { PromptTemplate, Project } from '../types';
+import { Save, RefreshCw, Cpu, Terminal, Info, Sparkles, Edit3, Lock, Unlock, AlertCircle, ShieldAlert } from 'lucide-react';
+import { PromptTemplate, Project, User } from '../types';
 import { generateDepartmentWorkflow } from '../services/geminiService';
 
 interface PromptManagerProps {
   templates: PromptTemplate[];
   projects: Project[];
   onUpdateTemplate: (updated: PromptTemplate) => void;
+  user?: User;
 }
 
-const PromptManager: React.FC<PromptManagerProps> = ({ templates, projects, onUpdateTemplate }) => {
+const PromptManager: React.FC<PromptManagerProps> = ({ templates, projects, onUpdateTemplate, user }) => {
   const [selectedId, setSelectedId] = useState<string>(templates[0]?.id || '');
   const [isScanning, setIsScanning] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Security Check
+  if (user && user.role !== 'ADMIN') {
+      return (
+          <div className="h-full flex flex-col items-center justify-center text-slate-400">
+              <ShieldAlert size={64} className="text-slate-300 mb-4" />
+              <h2 className="text-xl font-bold text-slate-700">权限不足</h2>
+              <p className="mt-2">只有系统管理员 (ADMIN) 有权限访问 AI Prompt 调优控制台。</p>
+              <p className="text-sm mt-1">当前角色: {user.role}</p>
+          </div>
+      );
+  }
 
   const selectedTemplate = templates.find(t => t.id === selectedId);
 

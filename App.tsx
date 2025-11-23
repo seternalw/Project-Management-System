@@ -6,14 +6,23 @@ import DispatchPool from './pages/DispatchPool';
 import ProjectDetail from './pages/ProjectDetail';
 import WeeklyReport from './pages/WeeklyReport';
 import PromptManager from './pages/PromptManager';
-import { Project, ViewMode, PromptTemplate } from './types';
+import LoginPage from './pages/LoginPage';
+import { Project, ViewMode, PromptTemplate, User } from './types';
 import { MOCK_PROJECTS, DEFAULT_PROMPT_TEMPLATES } from './constants';
 
 const App: React.FC = () => {
+  // Auth State
+  const [user, setUser] = useState<User | null>(null);
+
   const [currentView, setView] = useState<ViewMode>('DASHBOARD');
   const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [promptTemplates, setPromptTemplates] = useState<PromptTemplate[]>(DEFAULT_PROMPT_TEMPLATES);
+
+  // If not logged in, show Login Page
+  if (!user) {
+      return <LoginPage onLogin={setUser} />;
+  }
 
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);
@@ -33,8 +42,13 @@ const App: React.FC = () => {
     setPromptTemplates(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
   };
 
+  const handleLogout = () => {
+      setUser(null);
+      setView('DASHBOARD');
+  };
+
   return (
-    <Layout currentView={currentView} setView={setView}>
+    <Layout currentView={currentView} setView={setView} user={user} onLogout={handleLogout}>
       {currentView === 'DASHBOARD' && (
         <Dashboard projects={projects} />
       )}
@@ -57,6 +71,7 @@ const App: React.FC = () => {
             templates={promptTemplates}
             projects={projects}
             onUpdateTemplate={handleUpdateTemplate}
+            user={user}
         />
       )}
       
